@@ -1,1 +1,8 @@
-/*    /index.html   200
+# Cloudflare Pages / Workers Single-Page Application (SPA) routing configuration
+#
+# Cloudflare Pages automatically serves /index.html with HTTP status 200 for all client-side
+# routes (e.g. /services, /packages, /gallery, /contact-booking) when no 404.html is present.
+#
+# Explicit rules such as '/* /index.html 200' must NOT be used because Cloudflare's
+# asset pipeline normalizes URLs by stripping '.html' and '/index', triggering deployment
+# validation error 100324 ("Infinite loop detected in this rule").

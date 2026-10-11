@@ -25,7 +25,7 @@ This repository implements the **Obsidian Atelier** design system:
 ### Frontend
 - **Framework:** React 19 + Vite 8
 - **Styling:** Vanilla CSS & Tailwind CSS v4 design system with exact Obsidian Atelier tokens
-- **Routing:** React Router DOM v7 (SPA routing with Cloudflare `_redirects` support)
+- **Routing:** React Router DOM v7 (Cloudflare Pages native SPA fallback for client-side routing)
 - **Icons & Assets:** Google Material Symbols Outlined, custom SVG brand mark, local high-resolution detailing photography
 
 ### Backend
@@ -47,7 +47,7 @@ stitch_washhub_luxury_detailing_website/
 │
 ├── frontend/                      # React + Vite client
 │   ├── public/
-│   │   ├── _redirects             # Cloudflare Pages SPA rewrite rules
+│   │   ├── _redirects             # Cloudflare Pages SPA configuration (native fallback)
 │   │   ├── favicon.svg            # Custom WashHub SVG brand mark
 │   │   └── assets/                # High-res detailing studio photography
 │   ├── src/
@@ -197,7 +197,7 @@ npm run dev
    - **Output Directory:** `dist`
 3. Environment Variables:
    - `VITE_API_BASE_URL`: `https://your-render-backend-url.onrender.com`
-4. Routing: `frontend/public/_redirects` automatically redirects all routes to `index.html` for client-side routing.
+4. Routing: Cloudflare Pages automatically serves `index.html` (200 OK) for all client routes (`/services`, `/packages`, `/gallery`, `/contact-booking`) without manual rewrite rules that trigger redirect loops.
 
 ---
 
