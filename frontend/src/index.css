@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #121317;
+  --color-surface-dim: #121317;
+  --color-surface-bright: #38393e;
+  --color-surface-container-lowest: #0d0e12;
+  --color-surface-container-low: #1a1b20;
+  --color-surface-container: #1f1f24;
+  --color-surface-container-high: #292a2e;
+  --color-surface-container-highest: #343439;
+  --color-on-surface: #e3e2e8;
+  --color-on-surface-variant: #d1c5b8;
+  --color-inverse-surface: #e3e2e8;
+  --color-inverse-on-surface: #2f3035;
+  --color-outline: #998f83;
+  --color-outline-variant: #4d463c;
+  --color-surface-tint: #e0c298;
+  --color-primary: #e2c399;
+  --color-on-primary: #402d0f;
+  --color-primary-container: #c5a880;
+  --color-on-primary-container: #513d1d;
+  --color-inverse-primary: #725b38;
+  --color-secondary: #c4c7ca;
+  --color-on-secondary: #2d3134;
+  --color-secondary-container: #46494d;
+  --color-on-secondary-container: #b6b8bc;
+  --color-tertiary: #c1c8d5;
+  --color-on-tertiary: #2a313b;
+  --color-tertiary-container: #a6adb9;
+  --color-on-tertiary-container: #3a414b;
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+  --color-primary-fixed: #fedeb2;
+  --color-primary-fixed-dim: #e0c298;
+  --color-on-primary-fixed: #281800;
+  --color-on-primary-fixed-variant: #584323;
+  --color-secondary-fixed: #e0e2e6;
+  --color-secondary-fixed-dim: #c4c7ca;
+  --color-on-secondary-fixed: #191c1f;
+  --color-on-secondary-fixed-variant: #44474a;
+  --color-tertiary-fixed: #dce3f0;
+  --color-tertiary-fixed-dim: #c0c7d3;
+  --color-on-tertiary-fixed: #151c25;
+  --color-on-tertiary-fixed-variant: #404752;
+  --color-background: #121317;
+  --color-on-background: #e3e2e8;
+  --color-surface-variant: #343439;
+
+  --font-headline-lg: 'Syne', sans-serif;
+  --font-headline-md: 'Syne', sans-serif;
+  --font-headline-sm: 'Syne', sans-serif;
+  --font-display-lg: 'Syne', sans-serif;
+  --font-display-lg-mobile: 'Syne', sans-serif;
+  --font-headline-lg-mobile: 'Syne', sans-serif;
+  --font-body-lg: 'Hanken Grotesk', sans-serif;
+  --font-body-md: 'Hanken Grotesk', sans-serif;
+  --font-body-sm: 'Hanken Grotesk', sans-serif;
+  --font-label-md: 'JetBrains Mono', monospace;
+  --font-label-sm: 'JetBrains Mono', monospace;
+
+  --spacing-margin: 3rem;
+  --spacing-margin-mobile: 1.25rem;
+  --spacing-gutter: 1.5rem;
+  --spacing-gutter-mobile: 1rem;
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 1rem;
+  --spacing-space-lg: 1.75rem;
+  --spacing-space-xl: 3rem;
+
+  --radius-sm: 0.125rem;
+  --radius-DEFAULT: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+}
+
+/* Base resets & typography */
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #121317;
+  color: #e3e2e8;
+  font-family: 'Hanken Grotesk', sans-serif;
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background-color: #c5a880;
+  color: #513d1d;
+}
+
+/* Glassmorphism & Specular borders */
+.glass-panel {
+  background: rgba(26, 29, 36, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-elevated {
+  background: rgba(34, 38, 48, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.gold-glow {
+  box-shadow: 0 0 32px rgba(197, 168, 128, 0.2);
+}
+
+.gold-glow-hover:hover {
+  box-shadow: 0 0 40px rgba(197, 168, 128, 0.35);
+}
+
+.hairline-gold {
+  border: 1px solid rgba(197, 168, 128, 0.25);
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d0e12;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #292a2e;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c5a880;
+}
