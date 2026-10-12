@@ -76,7 +76,17 @@ export default function BookingForm({ initialService = '' }) {
       const response = await apiClient.createBooking(formData);
       setSuccessData(response.data);
     } catch (err) {
-      setError(err.message || 'Unable to transmit reservation request. Please try again or reach out on WhatsApp.');
+      const msg = err?.message || '';
+      let userFriendlyError = msg;
+      if (
+        !msg ||
+        msg.includes('Unexpected end of JSON input') ||
+        msg.includes('is not valid JSON') ||
+        msg.includes('JSON.parse')
+      ) {
+        userFriendlyError = 'The atelier reservation server returned an unexpected response. Please try again shortly or contact concierge on WhatsApp.';
+      }
+      setError(userFriendlyError);
     } finally {
       setLoading(false);
     }

@@ -12,6 +12,9 @@ const generateReferenceCode = () => {
 };
 
 export const createBooking = async (req, res, next) => {
+  // Always guarantee JSON content type header
+  res.setHeader('Content-Type', 'application/json');
+
   try {
     const {
       fullName,
@@ -21,7 +24,7 @@ export const createBooking = async (req, res, next) => {
       preferredDate,
       custodyShift,
       specialRequirements,
-    } = req.body;
+    } = req.body || {};
 
     // Strict backend validation
     if (!fullName || typeof fullName !== 'string' || fullName.trim().length === 0) {
@@ -36,7 +39,7 @@ export const createBooking = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         error: 'Validation Error',
-        message: 'A valid phone number is required',
+        message: 'A valid phone number is required (minimum 7 digits)',
       });
     }
 
@@ -48,7 +51,18 @@ export const createBooking = async (req, res, next) => {
       });
     }
 
-    if (!serviceTier || typeof serviceTier !== 'string') {
+    const validTiers = [
+      'premium-wash',
+      'interior-deep',
+      'car-detailing',
+      'ceramic-coating',
+      'paint-protection',
+      'multi-stage-polishing',
+      'essential-care-pkg',
+      'premium-care-pkg',
+      'luxury-detailing-pkg',
+    ];
+    if (!serviceTier || typeof serviceTier !== 'string' || !validTiers.includes(serviceTier)) {
       return res.status(400).json({
         success: false,
         error: 'Validation Error',
@@ -75,6 +89,9 @@ export const createBooking = async (req, res, next) => {
       });
     }
 
+    const validShifts = ['morning', 'evening', 'full-day'];
+    const resolvedShift = validShifts.includes(custodyShift) ? custodyShift : 'morning';
+
     const bookingPayload = {
       referenceCode,
       fullName: fullName.trim(),
@@ -82,20 +99,48 @@ export const createBooking = async (req, res, next) => {
       carModel: carModel.trim(),
       serviceTier,
       preferredDate: parsedDate,
-      custodyShift: custodyShift || 'morning',
-      specialRequirements: specialRequirements ? specialRequirements.trim() : '',
+      custodyShift: resolvedShift,
+      specialRequirements: specialRequirements ? String(specialRequirements).trim() : '',
       status: 'provisionally_locked',
       studioLocation: 'Samalkha Atelier, Panipat 132101',
     };
 
     let savedBooking = null;
 
-    // Save to MongoDB if connected
-    if (mongoose.connection.readyState === 1) {
-      const bookingDoc = new Booking(bookingPayload);
-      savedBooking = await bookingDoc.save();
-    } else {
-      // In-memory fallback
+    // Check MongoDB connection status: 1 = connected, 2 = connecting
+    const isMongoConnected = mongoose.connection.readyState === 1;
+    const isMongoConnecting = mongoose.connection.readyState === 2;
+
+    if (isMongoConnected || (isMongoConnecting && process.env.MONGODB_URI)) {
+      try {
+        const bookingDoc = new Booking(bookingPayload);
+        savedBooking = await bookingDoc.save();
+      } catch (dbError) {
+        console.error('[WashHub API] MongoDB save error:', dbError);
+        // Requirement 3: Do NOT hide the real backend error
+        if (dbError.name === 'ValidationError') {
+          const messages = Object.values(dbError.errors || {}).map((val) => val.message);
+          return res.status(400).json({
+            success: false,
+            error: 'Validation Error',
+            message: messages.join(', ') || dbError.message,
+          });
+        }
+        if (dbError.code === 11000) {
+          return res.status(409).json({
+            success: false,
+            error: 'Duplicate Key Error',
+            message: 'A reservation with this reference code already exists. Please submit again.',
+          });
+        }
+        return res.status(500).json({
+          success: false,
+          error: dbError.name || 'Database Error',
+          message: `Database booking persistence failed: ${dbError.message}`,
+        });
+      }
+    } else if (!process.env.MONGODB_URI) {
+      // Local development fallback store when MONGODB_URI is not configured
       const inMemoryDoc = {
         ...bookingPayload,
         _id: 'mem_' + Date.now(),
@@ -104,6 +149,22 @@ export const createBooking = async (req, res, next) => {
       };
       inMemoryBookings.unshift(inMemoryDoc);
       savedBooking = inMemoryDoc;
+    } else {
+      // MONGODB_URI was configured, but connection is disconnected
+      console.warn('[WashHub API] MONGODB_URI is configured but database connection is disconnected');
+      return res.status(503).json({
+        success: false,
+        error: 'Database Unavailable',
+        message: 'Database connection is temporarily unavailable. Please retry shortly.',
+      });
+    }
+
+    if (!savedBooking) {
+      return res.status(500).json({
+        success: false,
+        error: 'Booking Persistence Error',
+        message: 'Unable to commit reservation bay allocation.',
+      });
     }
 
     return res.status(201).json({
@@ -122,11 +183,20 @@ export const createBooking = async (req, res, next) => {
       },
     });
   } catch (error) {
-    next(error);
+    console.error('[WashHub API] createBooking unexpected error:', error);
+    // Requirement 1: Make POST /api/bookings endpoint ALWAYS return a valid JSON response
+    // Requirement 3: Do NOT hide the real backend error
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(error.statusCode || error.status || 500).json({
+      success: false,
+      error: error.name || 'Server Error',
+      message: error.message || 'An unexpected error occurred while processing reservation.',
+    });
   }
 };
 
 export const getBookings = async (req, res, next) => {
+  res.setHeader('Content-Type', 'application/json');
   try {
     if (mongoose.connection.readyState === 1) {
       const bookings = await Booking.find()
@@ -146,6 +216,12 @@ export const getBookings = async (req, res, next) => {
       data: inMemoryBookings.slice(0, 20),
     });
   } catch (error) {
-    next(error);
+    console.error('[WashHub API] getBookings error:', error);
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(error.status || 500).json({
+      success: false,
+      error: error.name || 'Server Error',
+      message: error.message || 'Failed to retrieve bookings',
+    });
   }
 };

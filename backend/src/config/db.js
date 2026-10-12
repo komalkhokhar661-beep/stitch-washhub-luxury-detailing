@@ -1,5 +1,18 @@
 import mongoose from 'mongoose';
 
+// Connection lifecycle event listeners
+mongoose.connection.on('connected', () => {
+  console.log('[WashHub DB] Mongoose connection established.');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('[WashHub DB] Mongoose connection error:', err.message);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('[WashHub DB] Mongoose connection disconnected.');
+});
+
 export const connectDB = async () => {
   const uri = process.env.MONGODB_URI;
   if (!uri) {
